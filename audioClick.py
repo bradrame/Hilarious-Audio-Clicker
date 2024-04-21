@@ -1,17 +1,20 @@
-import socket
-import tkinter as tk
 import threading
+import socket
+import time
+import tkinter as tk
 from threading import Thread
 import os
 import random
 import mouse
 from playsound import playsound
-#
 # DISCLAIMER: THREAD COUNTS APPEAR QUADROUPLED DUE TO THE MOUSE LISTENER
+#
+#
 #
 # Initialized sets
 id_tag = socket.gethostname()
 active_thread = False
+thread_count = 1
 audio_folder = 'audio_files'
 audio_files = os.listdir(audio_folder)
 last_played_file = None
@@ -44,7 +47,7 @@ def total_threads():
     thread_count = len(active_threads)
     print(f'Number of threads running: {thread_count}')
 def thread_setup():
-    if active_thread == True:
+    if active_thread ==  True:
         run_button.config(text='Stop', command=thread_kill)
         quit_button.config(state=tk.DISABLED)
         listener_thread = Thread(target=run_listener)
@@ -58,10 +61,14 @@ def thread_kill():
 #
 # Main operations
 def run_listener():
+    global active_thread, clicker_thread
     while active_thread == True:
-        mouse.wait('left')
-        print('Mouse clicked.')
-        play_random_audio()
+        if mouse.is_pressed(button='left'):
+            print('Left mouse button held down.')
+            clicker_thread = Thread(target=play_random_audio)
+            clicker_thread.start()
+        time.sleep(0.16)
+    active_thread = True
 #
 #
 # Audio folder operations
